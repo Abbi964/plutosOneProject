@@ -82,3 +82,47 @@ export const postLogin = async(req,res)=>{
         res.status(500).json({msg : "something went wrong"})
     }
 }
+
+export const updateUser = async(req,res)=>{
+    try{
+        const user = req.user;
+        const updateUserObj = req.body;
+
+        // hasing password
+        let hash = bcrypt.hashSync(updateUserObj.password,10)
+        updateUserObj.password = hash
+
+        // updating user
+        await user.update(updateUserObj)
+        await user.save()
+
+        res.status(201).json({user}) 
+
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({msg : "something went wrong"})
+    }
+}
+
+export const deleteUser = async(req,res)=>{
+    try{
+        const user = req.user;
+        const userId = req.params.userId;
+
+        if (user.id == userId || user.isAdmin){
+            // deleting user
+            await user.destroy()
+
+            res.status(200).json({success : true})
+        }
+        else if(!user.isAdmin){
+            res.status(401).json({msg : "Not Authorized : you are not admin"})
+        }
+        
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({msg : "something went wrong"})
+    }
+}
