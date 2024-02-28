@@ -3,6 +3,62 @@ import User from '../model/user.js';
 import sequelize from '../util/database.js';
 import JWT from 'jsonwebtoken'
 
+export const getUser = async(req,res)=>{
+    try{
+        const user = req.user;
+        const userId = req.params.userId
+
+        if(user.id == userId || user.isAdmin){
+    
+            // getting user
+            let user = await User.findByPk(userId)
+
+            if(user){
+                res.status(200).json({user}) 
+            }
+            else{
+                res.status(404).json({msg : "user not found"})
+            }
+    
+        }
+        else{
+            res.status(401).json({msg : "Not Authorized"})
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({msg : "something went wrong"})
+    }
+}
+
+export const getAllUsers = async(req,res)=>{
+    try{
+        const user = req.user;
+
+        if(user.isAdmin){
+    
+            // getting users
+            let users = await User.findAll()
+
+            if(users){
+                res.status(200).json({users}) 
+            }
+            else{
+                res.status(404).json({msg : "Something went wrong"})
+            }
+    
+        }
+        else{
+            res.status(401).json({msg : "Not Authorized"})
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({msg : "something went wrong"})
+    }
+}
+
+
 export const createUser = async(req,res)=>{
     const t = await sequelize.transaction()
     try{

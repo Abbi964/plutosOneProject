@@ -1,10 +1,22 @@
 import express from 'express'
-import { createVoucher } from '../controller/voucherController.js';
+import { createVoucher, deleteVoucher, getAllVoucher, getVoucher, updateVoucher } from '../controller/voucherController.js';
 import verifyToken from '../middleware/verifyToken.js';
 
 const voucherRouter = express.Router();
 
+// GET voucher
+voucherRouter.get('/get/:voucherId',verifyToken,getVoucher)
+
+// GET All voucher
+voucherRouter.get('/getAll',verifyToken,getAllVoucher)
+
 // POST ctrate voucher
 voucherRouter.post('/create',verifyToken,createVoucher)
+
+// PUT update voucher
+voucherRouter.put('/update/:voucherId',verifyToken,updateVoucher)
+
+// DELETE delete voucher
+voucherRouter.delete('/delete/:voucherId',verifyToken,deleteVoucher)
 
 export default voucherRouter;
