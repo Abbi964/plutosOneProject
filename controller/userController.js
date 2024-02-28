@@ -87,17 +87,22 @@ export const updateUser = async(req,res)=>{
     try{
         const user = req.user;
         const updateUserObj = req.body;
+        const userId = req.params.userId
 
-        // hasing password
-        let hash = bcrypt.hashSync(updateUserObj.password,10)
-        updateUserObj.password = hash
-
-        // updating user
-        await user.update(updateUserObj)
-        await user.save()
-
-        res.status(201).json({user}) 
-
+        if(user.id == userId || user.isAdmin){
+            // hasing password
+            let hash = bcrypt.hashSync(updateUserObj.password,10)
+            updateUserObj.password = hash
+    
+            // updating user
+            await user.update(updateUserObj)
+            await user.save()
+    
+            res.status(201).json({user}) 
+        }
+        else{
+            res.status(401).json({msg : "Not Authorized"})
+        }
     }
     catch(err){
         console.log(err);

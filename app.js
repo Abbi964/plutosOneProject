@@ -11,9 +11,11 @@ app.use(bodyParser.json())
 
 // importing routes
 import userRouter from './routes/userRoutes.js';
+import voucherRouter from './routes/voucherRoutes.js';
 
 // using routes
 app.use('/user',userRouter)
+app.use('/voucher',voucherRouter)
 
 sequelize.sync()
     .then(()=>{

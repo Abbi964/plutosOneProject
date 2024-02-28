@@ -10,7 +10,7 @@ userRouter.post('/create',createUser)
 userRouter.post('/login',postLogin)
 
 // PUT Update user
-userRouter.put('/update',verifyToken,updateUser)
+userRouter.put('/update/:userId',verifyToken,updateUser)
 
 // DELETE user
 userRouter.delete('/delete/:userId',verifyToken,deleteUser)
