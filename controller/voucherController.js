@@ -3,7 +3,6 @@ import Voucher from "../model/voucher.js";
 import { v4 as uuidv4 } from 'uuid';
 
 export const getVoucher = async(req,res)=>{
-    const t = await sequelize.transaction()
     try{
         const user = req.user;
         const voucherId = req.params.voucherId;
@@ -25,13 +24,11 @@ export const getVoucher = async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        await t.rollback()
         res.status(500).json({msg : "Something went wrong"})
     }
 }
 
 export const getAllVoucher = async(req,res)=>{
-    const t = await sequelize.transaction()
     try{
         const user = req.user;
 
@@ -52,7 +49,6 @@ export const getAllVoucher = async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        await t.rollback()
         res.status(500).json({msg : "Something went wrong"})
     }
 }
@@ -68,7 +64,7 @@ export const createVoucher = async(req,res)=>{
             let voucher = await Voucher.create({
                 id  : uuidv4(),
                 ...voucherObj
-            })
+            },{transaction : t})
             await t.commit()
             if(voucher){
                 res.status(201).json({success : true,voucher })
@@ -91,7 +87,6 @@ export const createVoucher = async(req,res)=>{
 
 
 export const updateVoucher = async(req,res)=>{
-    const t = await sequelize.transaction()
     try{
         let voucherObj = req.body;
         let user = req.user;
@@ -121,7 +116,6 @@ export const updateVoucher = async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        await t.rollback()
         res.status(500).json({msg : "Something went wrong"})
     }
 } 
@@ -136,11 +130,11 @@ export const deleteVoucher = async(req,res)=>{
         // checking if user is admin
         if(user.isAdmin){
             // finding the voucher
-            let voucher = await Voucher.findByPk(voucherId);
+            let voucher = await Voucher.findByPk(voucherId,{transaction : t});
 
             if(voucher){
                 // deleting the voucher
-                await voucher.destroy()
+                await voucher.destroy({transaction : t})
 
                 await t.commit()
                 res.status(200).json({success : true})

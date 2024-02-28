@@ -18,10 +18,12 @@ app.use(bodyParser.json())
 // importing routes
 import userRouter from './routes/userRoutes.js';
 import voucherRouter from './routes/voucherRoutes.js';
+import voucherCodeRouter from './routes/voucherCodeRoutes.js';
 
 // using routes
 app.use('/user',userRouter)
 app.use('/voucher',voucherRouter)
+app.use('/voucherCode',voucherCodeRouter)
 
 // defining relations between models
 Voucher.hasMany(VoucherCode)

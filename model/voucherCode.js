@@ -19,9 +19,13 @@ const VoucherCode = sequelize.define('VoucherCode',{
         type : DataTypes.BOOLEAN,
         allowNull : false
     },
-    totalUses : {
-        type : DataTypes.INTEGER,
+    isActive : {
+        type : DataTypes.BOOLEAN,
+        defaultValue : true,
         allowNull : false
+    },
+    totalUses : {
+        type : DataTypes.INTEGER
     }
 })
 
