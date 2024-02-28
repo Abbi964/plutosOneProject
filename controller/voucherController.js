@@ -1,6 +1,9 @@
 import sequelize from "../util/database.js";
 import Voucher from "../model/voucher.js";
 import { v4 as uuidv4 } from 'uuid';
+import VoucherCode from "../model/voucherCode.js";
+import UserVoucherCode from "../model/user_voucherCode.js";
+import { Op } from "sequelize";
 
 export const getVoucher = async(req,res)=>{
     try{
@@ -147,6 +150,82 @@ export const deleteVoucher = async(req,res)=>{
             res.status(401).json({msg : "You are not an Admin"})
         }
 
+    }
+    catch(err){
+        console.log(err);
+        await t.rollback()
+        res.status(500).json({msg : "Something went wrong"})
+    }
+}
+
+
+export const claimVoucher = async(req,res)=>{
+    const t = await sequelize.transaction();
+    try{
+        const user = req.user;
+        const voucherId = req.params.voucherId;
+        console.log('reached')
+        // checking if voucher has any avilable voucher codes
+        // first getting voucher
+        let voucher = await Voucher.findByPk(voucherId,{transaction : t});
+
+        if (voucher){
+            // checking for avilable voucher codes
+            let currentDate = new Date()
+            let voucherCode = await VoucherCode.findOne({
+                where : {
+                    VoucherId : voucherId,
+                    isActive : true,
+                    expiryDate : {
+                        [Op.gt] : currentDate
+                    }
+                },transaction : t
+            })
+
+            if (voucherCode){
+                // updating voucher code 
+                if (voucherCode.isSingleUse || voucherCode.totalUses == 1){
+                    // deactivating it
+                    voucherCode.isActive = false
+                }
+                else{
+                    // decreasing the totaluses
+                    voucherCode.totalUses -= 1
+                }
+                await voucherCode.save({transaction : t})
+                
+                
+                // now updating this info in UserVoucherCode table-----------------//
+                let [result, created] = await UserVoucherCode.findOrCreate({
+                    where : {userId : user.id,voucherCodeId  : voucherCode.id},
+                    defaults : {userId : user.id,voucherCodeId  : voucherCode.id},
+                    transaction : t   
+                })
+
+                if (created){
+                    await t.commit()
+                    res.status(200).json({
+                        msg : `${user.username} has claimed Voucher code ( ${voucherCode.voucherCode} )`,
+                        brandName : voucher.brandName,
+                        brandInfo : voucher.brandInfo,
+                        voucherDetails : voucher.voucherDetails,
+                        price : voucher.price,
+                        voucherCode : voucherCode.voucherCode,
+                        expiryDate : voucherCode.expiryDate  
+                    })
+                }
+                else{
+                    res.status(401).json({msg : "You have already claimed the voucherCode"})
+                }
+                
+            }
+            else{
+                res.status(404).json({msg : "No avilable voucher code"})
+            }
+        }
+        else{
+            res.status(404).json({msg : "wrong voucherId"})
+        }
     }
     catch(err){
         console.log(err);

@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import User from '../model/user.js';
 import sequelize from '../util/database.js';
 import JWT from 'jsonwebtoken'
+import UserVoucherCode from '../model/user_voucherCode.js';
 
 export const getUser = async(req,res)=>{
     try{
@@ -14,7 +15,12 @@ export const getUser = async(req,res)=>{
             let user = await User.findByPk(userId)
 
             if(user){
-                res.status(200).json({user}) 
+                // also getting vouchercodes claimed by user
+                let claimedVoucherCodes = await user.getVoucherCodes({
+                    attributes : ['id','voucherCode','VoucherId']
+                })    // magic method
+
+                res.status(200).json({user,claimedVoucherCodes}) 
             }
             else{
                 res.status(404).json({msg : "user not found"})
@@ -187,3 +193,4 @@ export const deleteUser = async(req,res)=>{
         res.status(500).json({msg : "something went wrong"})
     }
 }
+

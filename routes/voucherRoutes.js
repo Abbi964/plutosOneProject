@@ -1,5 +1,5 @@
 import express from 'express'
-import { createVoucher, deleteVoucher, getAllVoucher, getVoucher, updateVoucher } from '../controller/voucherController.js';
+import { claimVoucher, createVoucher, deleteVoucher, getAllVoucher, getVoucher, updateVoucher } from '../controller/voucherController.js';
 import verifyToken from '../middleware/verifyToken.js';
 
 const voucherRouter = express.Router();
@@ -18,5 +18,8 @@ voucherRouter.put('/update/:voucherId',verifyToken,updateVoucher)
 
 // DELETE delete voucher
 voucherRouter.delete('/delete/:voucherId',verifyToken,deleteVoucher)
+
+// GET claimVoucher
+voucherRouter.get('/claim/:voucherId',verifyToken,claimVoucher)
 
 export default voucherRouter;
