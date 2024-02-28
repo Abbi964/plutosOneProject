@@ -5,6 +5,12 @@ import express from "express";
 import sequelize from './util/database.js';
 import bodyParser from 'body-parser';
 
+// importing models
+import User from './model/user.js';
+import Voucher from './model/voucher.js';
+import VoucherCode from './model/voucherCode.js';
+import UserVoucherCode from './model/user_voucherCode.js';
+
 const app = express()
 
 app.use(bodyParser.json())
@@ -16,6 +22,13 @@ import voucherRouter from './routes/voucherRoutes.js';
 // using routes
 app.use('/user',userRouter)
 app.use('/voucher',voucherRouter)
+
+// defining relations between models
+Voucher.hasMany(VoucherCode)
+VoucherCode.belongsTo(Voucher)
+
+User.belongsToMany(VoucherCode,{through : UserVoucherCode, foreignKey : 'userId'})
+VoucherCode.belongsToMany(User,{through : UserVoucherCode, foreignKey : 'voucherCodeId'})
 
 sequelize.sync()
     .then(()=>{
