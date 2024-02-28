@@ -25,6 +25,20 @@ app.use('/user',userRouter)
 app.use('/voucher',voucherRouter)
 app.use('/voucherCode',voucherCodeRouter)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // defining relations between models
 Voucher.hasMany(VoucherCode)
 VoucherCode.belongsTo(Voucher)

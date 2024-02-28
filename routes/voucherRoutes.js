@@ -1,6 +1,8 @@
 import express from 'express'
-import { claimVoucher, createVoucher, deleteVoucher, getAllVoucher, getVoucher, updateVoucher } from '../controller/voucherController.js';
+import { claimVoucher, createVoucher, deleteVoucher, getAllVoucher, getVoucher, updateVoucher, uploadVoucherCSV } from '../controller/voucherController.js';
 import verifyToken from '../middleware/verifyToken.js';
+import multer from 'multer'
+const upload = multer({ dest: 'uploads/' });
 
 const voucherRouter = express.Router();
 
@@ -21,5 +23,8 @@ voucherRouter.delete('/delete/:voucherId',verifyToken,deleteVoucher)
 
 // GET claimVoucher
 voucherRouter.get('/claim/:voucherId',verifyToken,claimVoucher)
+
+// POST Upload Voucher csv
+voucherRouter.post('/upload/:voucherId',verifyToken,upload.single('csvFile'),uploadVoucherCSV)
 
 export default voucherRouter;
